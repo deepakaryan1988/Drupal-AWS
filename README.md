@@ -32,4 +32,10 @@ This is a Drupal 11 starter project pre-configured with Lando for local developm
 3. **Install Drupal site**
    ```bash
    lando drush site:install
+4. **Access the Drupal site in your browser**
+  Open:
+   ```bash
+   http://drupal-aws.lndo.site
+
+  Or copy the URL shown in the terminal after lando start
 
