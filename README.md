@@ -37,5 +37,6 @@ This is a Drupal 11 starter project pre-configured with Lando for local developm
    ```bash
    http://drupal-aws.lndo.site
 
-  Or copy the URL shown in the terminal after lando start
-
+  Or copy the URL shown in the terminal after
+  ```bash
+   lando start
