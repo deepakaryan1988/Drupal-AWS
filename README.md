@@ -29,3 +29,7 @@ This is a Drupal 11 starter project pre-configured with Lando for local developm
 2. **Start the Lando**
    ```bash
    lando start
+3. **Install Drupal site**
+   ```bash
+   lando drush site:install
+
