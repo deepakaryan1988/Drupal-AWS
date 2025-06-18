@@ -98,7 +98,7 @@ Drupal-AWS/
 
 ## 👤 Maintainer
 
-Deepak Aryan
+Deepak Kumar
 🔗 [github.com/deepakaryan1988](https://github.com/deepakaryan1988)
 
 ---
