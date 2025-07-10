@@ -60,3 +60,10 @@
 /drush
 /drupal.phar
 /drupal
+
+# Ignore Terraform working directory
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
