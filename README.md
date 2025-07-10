@@ -133,7 +133,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Deepak Kumar**
 
 -   [GitHub](https://github.com/deepakaryan1988)
 -   [LinkedIn](https://www.linkedin.com/in/deepakaryan1988)
