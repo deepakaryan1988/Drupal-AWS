@@ -61,9 +61,8 @@
 /drupal.phar
 /drupal
 
-# Ignore Terraform working directory
+# Terraform
 .terraform/
 *.tfstate
 *.tfstate.backup
 .terraform.lock.hcl
-
