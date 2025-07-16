@@ -26,13 +26,3 @@ variable "cpu" {
 variable "memory" {
   default = "512"
 }
-
-variable "public_subnet_ids" {
-  description = "List of public subnet IDs"
-  type        = list(string)
-}
-
-variable "security_group_id" {
-  description = "Security group ID for ECS service"
-  type        = string
-}

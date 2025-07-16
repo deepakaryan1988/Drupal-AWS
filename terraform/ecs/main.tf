@@ -2,6 +2,14 @@ provider "aws" {
   region = var.aws_region
 }
 
+data "terraform_remote_state" "network" {
+  backend = "local"
+
+  config = {
+    path = "../network/terraform.tfstate"
+  }
+}
+
 # Create ECS Cluster
 resource "aws_ecs_cluster" "this" {
   name = var.ecs_cluster_name
@@ -66,10 +74,8 @@ resource "aws_ecs_service" "this" {
   desired_count   = 1
 
   network_configuration {
-    subnets          = var.public_subnet_ids
+    subnets          = data.terraform_remote_state.network.outputs.public_subnet_ids
     assign_public_ip = true
-    security_groups  = [var.security_group_id]
+    security_groups  = [data.terraform_remote_state.network.outputs.security_group_id]
   }
-
-  depends_on = [aws_iam_role_policy_attachment.ecs_execution_policy]
 }
