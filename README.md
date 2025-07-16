@@ -1,137 +1,74 @@
+# 🚀 Drupal on AWS with Terraform & Docker
 
-# 🚀 Drupal on AWS with Terraform & Lando
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Drupal](https://img.shields.io/badge/Drupal-0678BE?style=for-the-badge&logo=drupal&logoColor=white)
 
-This repository contains a Drupal 11 project configured for local development with Lando and infrastructure-as-code using Terraform to provision an EC2 instance on AWS. It serves as a portfolio project to demonstrate modern DevOps practices for managing a Drupal application.
+This repository showcases a transition from manual Drupal deployments to a modern, infrastructure-as-code (IaC) approach using Terraform and Docker on AWS.
 
-## ✨ Project Overview
+---
 
-The primary goal of this project is to showcase a streamlined workflow for developing a Drupal site locally and deploying it to a cloud environment. It combines the power of Drupal 11, the simplicity of Lando for local development, and the robustness of Terraform for infrastructure automation.
+### 👨‍💻 Developer Profile
 
-## 🛠️ Tech Stack
+I have been deploying and scaling Drupal sites on AWS since 2015, using traditional methods like manual EC2 provisioning, shared file systems (EFS), and simple Git-based rollbacks.
 
-| Technology | Description |
-| :--- | :--- |
-| **Drupal 11** | The latest version of the powerful open-source content management system. |
-| **Lando** | A free, open-source, and cross-platform local development environment and DevOps tool. |
-| **Docker** | The underlying containerization technology used by Lando. |
-| **Terraform** | An open-source infrastructure as code software tool. |
-| **AWS** | Amazon Web Services, the cloud platform where the infrastructure is provisioned. |
+This project represents my professional development as I transition these manual practices into clean, maintainable, and scalable infrastructure-as-code. My goal is to build deep, production-grade knowledge of DevOps principles and create a clean, well-structured repository that reflects modern best practices.
 
-## ⚙️ Setup Instructions
+---
 
-### Prerequisites
+### 🏗️ Project Structure
 
-- [Lando](https://lando.dev/download/)
-- [Docker](https://www.docker.com/products/docker-desktop)
-- [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-- [AWS CLI](https://aws.amazon.com/cli/)
+The repository is organized into the following key directories:
 
-### Local Setup with Lando
+-   **/web/**: Contains the Drupal codebase. Core, vendor, and other generated directories are ignored via `.gitignore` to keep the repository clean.
+-   **/terraform/**: Houses the modular Terraform code for provisioning AWS infrastructure.
+    -   **/network/**: Defines the VPC, subnets, and internet gateway.
+    -   **/ecr/**: Sets up the private Elastic Container Registry (ECR).
+    -   **/ecs/**: (Work in Progress) Will define the ECS Fargate services for container orchestration.
+-   **/docker/**: Includes the Dockerfile for containerizing the Drupal application.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/Drupal-AWS.git
-    cd Drupal-AWS
-    ```
+---
 
-2.  **Start Lando:**
-    ```bash
-    lando start
-    ```
+### 🛠️ Tools & Stack
 
-3.  **Install Drupal:**
-    Use Lando to run Composer to install the Drupal dependencies.
-    ```bash
-    lando composer install
-    ```
-    Follow the on-screen instructions to complete the Drupal installation in your browser. You can get the site URL by running `lando info`.
+This project leverages a modern DevOps toolchain:
 
-##  Terraform Usage
+-   **Terraform**: Used for modular and reusable infrastructure-as-code. *Remote state management is the next step.*
+-   **Docker**: For containerizing the Drupal application, ensuring consistency across environments.
+-   **AWS**:
+    -   **ECS + Fargate**: The target for container orchestration (planned).
+    -   **ECR**: For storing the private Docker images.
+    -   **ALB, IAM, CloudWatch Logs**: In-progress components for load balancing, security, and logging.
+-   **GitHub + Copilot**: For collaborative development and CI/CD workflows.
 
-The Terraform code in `terraform/ec2/` will provision a new EC2 instance on AWS.
+---
 
-1.  **Navigate to the Terraform directory:**
-    ```bash
-    cd terraform/ec2
-    ```
+### 🎯 DevOps Learning Goals
 
-2.  **Initialize Terraform:**
-    ```bash
-    terraform init
-    ```
+My primary learning objectives for this project are:
 
-3.  **Plan the infrastructure:**
-    ```bash
-    terraform plan
-    ```
+-   **Master ECS and CI/CD**: Implement a robust, automated pipeline for continuous integration and deployment.
+-   **Real-Time Monitoring**: Integrate real-time monitoring and logging solutions to ensure application health and performance.
+-   **Explore Kubernetes**: Eventually, I plan to explore Kubernetes for more complex microservice orchestration.
+-   **Certification Path**: Build a job-ready portfolio that aligns with the requirements for the **Terraform Associate** and **AWS DevOps Pro** certifications.
 
-4.  **Apply the changes:**
-    ```bash
-    terraform apply
-    ```
+---
 
-## 🌐 Demo and Access
+### ✅ What’s Done So Far
 
-This project is designed to be a template. The EC2 instance provisioned by Terraform is a bare-bones server. The next steps, which are not yet implemented, would be to:
+-   [x] **Modular Terraform Structure**: Infrastructure code is organized into reusable modules.
+-   [x] **Docker Image**: The Drupal application has been containerized and pushed to ECR.
+-   [x] **Git Ignore**: `.gitignore` is configured for both Drupal and Terraform files.
+-   [ ] **Remote State + ECS Fargate**: This is the next major implementation goal.
 
--   Configure the EC2 instance with a web server (e.g., Nginx), PHP, and other required dependencies.
--   Deploy the Drupal site to the EC2 instance.
--   Set up a CI/CD pipeline to automate the deployment process.
+---
 
-## 📂 Project Structure
+### 📄 License
 
-```
-.
-├── .lando.yml
-├── composer.json
-├── recipes
-│   └── README.txt
-├── terraform
-│   └── ec2
-│       ├── main.tf
-│       └── outputs.tf
-└── web
-    ├── modules
-    ├── profiles
-    ├── sites
-    └── themes
-```
+This project is licensed under the MIT License.
 
-| File/Folder | Description |
-| :--- | :--- |
-| **`.lando.yml`** | Lando configuration file for local development. |
-| **`composer.json`** | PHP dependency management. |
-| **`recipes`** | Lando recipes and custom scripts. |
-| **`terraform/ec2`** | Terraform code for the EC2 instance. |
-| **`web`** | The Drupal web root. |
-
-## 📋 Common Commands
-
-### Lando
-
-| Command | Description |
-| :--- | :--- |
-| `lando start` | Start the Lando environment. |
-| `lando stop` | Stop the Lando environment. |
-| `lando rebuild` | Rebuild the Lando containers. |
-| `lando info` | Get information about the Lando environment, including the site URL. |
-| `lando composer ...` | Run Composer commands. |
-| `lando drush ...` | Run Drush commands. |
-
-### Terraform
-
-| Command | Description |
-| :--- | :--- |
-| `terraform init` | Initialize the Terraform configuration. |
-| `terraform plan` | Create an execution plan. |
-| `terraform apply` | Apply the changes required to reach the desired state. |
-| `terraform destroy` | Destroy the Terraform-managed infrastructure. |
-
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
+### 👨‍💻 Author
 
 **Deepak Kumar**
 
