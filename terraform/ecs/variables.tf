@@ -1,28 +1,29 @@
 variable "aws_region" {
-  default = "ap-south-1"
-}
-
-variable "ecr_image_url" {
-  description = "Docker image URI from ECR"
-  default     = "442740305597.dkr.ecr.ap-south-1.amazonaws.com/devops-ecr-deepak"
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "ap-south-1"
 }
 
 variable "container_name" {
-  default = "drupal-aws-container"
-}
-
-variable "ecs_cluster_name" {
-  default = "drupal-ecs-cluster"
-}
-
-variable "ecs_service_name" {
-  default = "drupal-ecs-service"
+  description = "Name of the container"
+  type        = string
+  default     = "drupal"
 }
 
 variable "cpu" {
-  default = "256"
+  description = "CPU units for the ECS task"
+  type        = number
+  default     = 256
 }
 
 variable "memory" {
-  default = "512"
+  description = "Memory in MiB for the ECS task"
+  type        = number
+  default     = 512
+}
+
+variable "repository_name" {
+  description = "ECR repo name (used to build image URL)"
+  type        = string
+  default     = "devops-ecr-deepak"
 }

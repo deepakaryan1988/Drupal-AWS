@@ -2,57 +2,79 @@ provider "aws" {
   region = var.aws_region
 }
 
-data "terraform_remote_state" "network" {
-  backend = "local"
+# 🔹 Fetch AWS Account ID dynamically
+data "aws_caller_identity" "current" {}
 
-  config = {
-    path = "../network/terraform.tfstate"
-  }
+# 🔹 Build ECR image URI dynamically
+locals {
+  ecr_image_url = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.repository_name}:latest"
 }
 
-# Create ECS Cluster
-resource "aws_ecs_cluster" "this" {
-  name = var.ecs_cluster_name
-}
-
-# IAM Role for ECS Task Execution
+# 🔐 ECS Task Execution Role – allows ECS to pull image and write logs
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecsTaskExecutionRole"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole",
+        Action = "sts:AssumeRole"
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
-        },
-        Effect = "Allow",
+        }
+        Effect = "Allow"
         Sid    = ""
       }
     ]
   })
+
+  tags = {
+    Name = "ECS Execution Role"
+  }
 }
 
-# Attach Managed Policy for ECS Execution Role
-resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Task Definition (Container Configuration)
-resource "aws_ecs_task_definition" "this" {
+# 🔐 ECS Task Role – used by your app to access AWS services (Secrets Manager, RDS, etc.)
+resource "aws_iam_role" "ecs_task_role" {
+  name = "ecsTaskRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
+      }
+    ]
+  })
+
+  tags = {
+    Name = "ECS Task Role"
+  }
+}
+
+# 🧱 ECS Task Definition – runs your Drupal container from ECR
+resource "aws_ecs_task_definition" "drupal_task" {
   family                   = "drupal-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.cpu
   memory                   = var.memory
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([
     {
       name      = var.container_name
-      image = "${var.ecr_image_url}:v5"
+      image     = local.ecr_image_url
       essential = true
       portMappings = [
         {
@@ -60,22 +82,25 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = 80
           protocol      = "tcp"
         }
+      ],
+      environment = [
+        {
+          name  = "DRUPAL_DB_HOST"
+          value = "placeholder"
+        },
+        {
+          name  = "DRUPAL_DB_NAME"
+          value = "drupal"
+        },
+        {
+          name  = "DRUPAL_DB_USER"
+          value = "drupal"
+        },
+        {
+          name  = "DRUPAL_DB_PASSWORD"
+          value = "drupal"
+        }
       ]
     }
   ])
-}
-
-# ECS Service (Runs the Task)
-resource "aws_ecs_service" "this" {
-  name            = var.ecs_service_name
-  cluster         = aws_ecs_cluster.this.id
-  task_definition = aws_ecs_task_definition.this.arn
-  launch_type     = "FARGATE"
-  desired_count   = 1
-
-  network_configuration {
-    subnets          = data.terraform_remote_state.network.outputs.public_subnet_ids
-    assign_public_ip = true
-    security_groups  = [data.terraform_remote_state.network.outputs.security_group_id]
-  }
 }
