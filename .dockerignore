@@ -1,0 +1,9 @@
+.git
+terraform/
+scripts/
+docker/
+*.log
+*.sql
+node_modules
+vendor/bin
+tests/
