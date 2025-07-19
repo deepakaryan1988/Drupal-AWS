@@ -11,10 +11,10 @@ resource "aws_lb" "this" {
 }
 
 resource "aws_lb_target_group" "this" {
-  name     = "drupal-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = data.terraform_remote_state.network.outputs.vpc_id
+  name        = "drupal-tg"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = data.terraform_remote_state.network.outputs.vpc_id
   target_type = "ip"
 
   health_check {
