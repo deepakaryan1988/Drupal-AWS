@@ -100,7 +100,7 @@ resource "aws_ecs_task_definition" "drupal_task" {
       mountPoints = [
         {
           sourceVolume  = "drupal-efs-volume"
-          containerPath = "/var/www/html/sites/default/files"
+          containerPath = "/var/www/html/web/sites/default"
           readOnly      = false
         }
       ],
