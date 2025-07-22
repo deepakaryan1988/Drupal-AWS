@@ -64,6 +64,44 @@ My primary learning objectives for this project are:
 
 ---
 
+### 🏗️ Architecture
+
+```mermaid
+graph TD
+    subgraph "AWS Cloud"
+        subgraph "VPC"
+            subgraph "Public Subnets (2 AZs)"
+                alb[("Application Load Balancer")]
+                ecs_service[("ECS Service")]
+            end
+
+            subgraph "Private Subnets (2 AZs)"
+                drupal_task[/"ECS Task (Fargate)"<br>Drupal Container/]
+                rds[("RDS MySQL Database")]
+                efs[("EFS File System")]
+            end
+
+            subgraph "AWS Services"
+                secrets_manager[("Secrets Manager")]
+                cloudwatch[("CloudWatch Logs")]
+                iam[("IAM Role")]
+            end
+        end
+    end
+
+    user[("User/Internet")] --> |HTTPS| alb
+    alb --> |HTTP| ecs_service
+    ecs_service --> |Manages| drupal_task
+
+    drupal_task --> |Reads/Writes Files| efs
+    drupal_task --> |SQL Queries| rds
+    drupal_task --> |Fetches DB Credentials| secrets_manager
+    drupal_task --> |Sends Logs| cloudwatch
+    drupal_task --> |Assumes Role for Permissions| iam
+```
+
+---
+
 ### 📄 License
 
 This project is licensed under the MIT License.
