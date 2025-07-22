@@ -7,8 +7,12 @@ echo "✅ Container booted!"
 echo "📂 Listing /var/www/html/web/"
 ls -lah /var/www/html/web || echo "❌ /var/www/html/web not found"
 
-# Ensure settings.php exists and is writable
-SETTINGS_FILE="/var/www/html/web/sites/default/settings.php"
+SETTINGS_DIR="/var/www/html/web/sites/default"
+SETTINGS_FILE="$SETTINGS_DIR/settings.php"
+
+# Create settings.php BEFORE EFS mounts anything
+echo "📄 Ensuring settings.php exists BEFORE EFS mount..."
+mkdir -p "$SETTINGS_DIR"
 
 if [ ! -f "$SETTINGS_FILE" ]; then
   echo "⚠️ settings.php missing! Creating an empty file."
@@ -19,11 +23,11 @@ echo "🔒 Fixing ownership and permissions for settings.php"
 chown www-data:www-data "$SETTINGS_FILE"
 chmod 664 "$SETTINGS_FILE"
 
-# Fix files/ directory
+# Now fix files/ directory (EFS mount)
 echo "🔒 Fixing permissions on files/"
-if [ -d /var/www/html/web/sites/default/files ]; then
-  chown -R www-data:www-data /var/www/html/web/sites/default/files
-  chmod -R 775 /var/www/html/web/sites/default/files
+if [ -d "$SETTINGS_DIR/files" ]; then
+  chown -R www-data:www-data "$SETTINGS_DIR/files"
+  chmod -R 775 "$SETTINGS_DIR/files"
 else
   echo "⚠️ files/ directory not found!"
 fi
