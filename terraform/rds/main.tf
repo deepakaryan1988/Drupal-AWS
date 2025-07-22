@@ -2,12 +2,17 @@ provider "aws" {
   region = "ap-south-1"
 }
 
-# 🔍 Get default VPC by tag or use your specific one
-data "aws_vpc" "selected" {
-  filter {
-    name   = "tag:Name"
-    values = ["drupal-vpc"] # update tag as needed
+# 🔗 Reference outputs from the Network module's remote state
+data "terraform_remote_state" "network" {
+  backend = "local"
+  config = {
+    path = "../network/terraform.tfstate"
   }
+}
+
+# 🔍 Get default VPC by tag or use your specific one
+locals {
+  vpc_id = data.terraform_remote_state.network.outputs.vpc_id
 }
 
 # 🔍 Fetch public subnets dynamically
@@ -19,7 +24,7 @@ data "aws_subnets" "public" {
 
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.selected.id]
+    values = [local.vpc_id]
   }
 }
 
@@ -29,7 +34,7 @@ data "aws_security_group" "ecs" {
     name   = "tag:Name"
     values = ["ecs-sg"]
   }
-  vpc_id = data.aws_vpc.selected.id
+  vpc_id = local.vpc_id
 }
 
 resource "aws_db_subnet_group" "drupal" {
@@ -44,7 +49,7 @@ resource "aws_db_subnet_group" "drupal" {
 resource "aws_security_group" "drupal_rds_sg" {
   name        = "drupal-rds-sg"
   description = "Allow MySQL from ECS"
-  vpc_id      = data.aws_vpc.selected.id
+  vpc_id      = local.vpc_id
 
   ingress {
     description     = "MySQL from ECS"

@@ -4,3 +4,17 @@ data "terraform_remote_state" "network" {
     path = "../network/terraform.tfstate"
   }
 }
+
+data "terraform_remote_state" "efs" {
+  backend = "local"
+  config = {
+    path = "../efs/terraform.tfstate"
+  }
+}
+
+data "terraform_remote_state" "rds" {
+  backend = "local"
+  config = {
+    path = "../rds/terraform.tfstate"
+  }
+}

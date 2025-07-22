@@ -1,33 +1,37 @@
-# Use PHP 8.3 with Apache – required for Drupal 11
 FROM php:8.3-apache
 
-# Install PHP extensions and system dependencies required by Drupal
+# Install PHP extensions required by Drupal
 RUN apt-get update && apt-get install -y \
-    git curl unzip zip libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev libzip-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd mbstring xml pdo pdo_mysql zip opcache
+    git unzip zip curl libpng-dev libjpeg-dev libfreetype6-dev \
+    libonig-dev libxml2-dev libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql zip gd opcache
 
-# Enable Apache mod_rewrite for clean URLs
+# Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Set Apache DocumentRoot to /var/www/html/web
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/web|g' /etc/apache2/sites-available/000-default.conf
+# Set DocumentRoot to /web folder
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/web|' /etc/apache2/sites-available/000-default.conf
 
-# Set working directory (matches Drupal Composer project root)
+# Install Composer globally
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# ✅ Install Drush via Composer (official way)
+RUN composer global require drush/drush \
+ && ln -s /root/.composer/vendor/bin/drush /usr/local/bin/drush
+
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy Drupal source and Composer config into container
-COPY ./web/ ./web/
-COPY ./vendor/ ./vendor/
-COPY ./composer.* ./
+# Copy Drupal code and lock files
+COPY composer.* ./
+COPY web/ web/
 
-# Set secure file and folder permissions for Apache
-RUN chown -R www-data:www-data /var/www/html && \
-    find /var/www/html -type d -exec chmod 755 {} \; && \
-    find /var/www/html -type f -exec chmod 644 {} \;
+# ✅ Run composer install here since extensions are available
+RUN composer install --no-dev --prefer-dist --no-scripts
 
-# Expose HTTP port
-EXPOSE 80
+# Copy entrypoint
+COPY docker/drupal/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Start Apache in foreground
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["apache2-foreground"]

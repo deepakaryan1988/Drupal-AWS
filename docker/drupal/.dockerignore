@@ -1,0 +1,6 @@
+terraform/
+.github/
+node_modules/
+.env
+*.log
+vendor/

@@ -71,6 +71,20 @@ resource "aws_ecs_task_definition" "drupal_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
+  volume {
+    name = "drupal-efs-volume"
+
+    efs_volume_configuration {
+      file_system_id          = data.terraform_remote_state.efs.outputs.efs_id
+      root_directory          = "/"
+      transit_encryption      = "ENABLED"
+      authorization_config {
+        access_point_id = data.terraform_remote_state.efs.outputs.efs_access_point_id
+        iam             = "DISABLED"
+      }
+    }
+  }
+
   container_definitions = jsonencode([
     {
       name      = var.container_name
@@ -83,6 +97,13 @@ resource "aws_ecs_task_definition" "drupal_task" {
           protocol      = "tcp"
         }
       ],
+      mountPoints = [
+        {
+          sourceVolume  = "drupal-efs-volume"
+          containerPath = "/var/www/html/sites/default/files"
+          readOnly      = false
+        }
+      ],
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -90,7 +111,25 @@ resource "aws_ecs_task_definition" "drupal_task" {
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
-      }
+      },
+      environment = [
+        {
+          name  = "DB_NAME"
+          value = data.terraform_remote_state.rds.outputs.rds_dbname
+        },
+        {
+          name  = "DB_USER"
+          value = data.terraform_remote_state.rds.outputs.rds_username
+        },
+        {
+          name  = "DB_PASS"
+          value = data.terraform_remote_state.rds.outputs.rds_password
+        },
+        {
+          name  = "DB_HOST"
+          value = data.terraform_remote_state.rds.outputs.rds_endpoint
+        }
+      ]
     }
   ])
 }
